@@ -1,0 +1,41 @@
+---
+title: "SAE_2013"
+author: "JcB"
+date: "17/05/2015"
+output: html_document
+---
+
+__source:__ Stat Resural/SAE/SAE2013
+
+```{r init}
+anc <- 2013
+options(width = 72, digits = 3, scipen = 7)
+# hôpitaux d'Alsace
+pathop <- "../../RPU_Doc/Carto/Hopitaux_Alsace.csv"
+hop <- read.csv(pathop)
+
+path <- "data/SAE 2013/Base CSV/Urgences/"
+file <- "URGENCES2_2013.csv"
+d <- read.csv2(paste0("../", path, file))
+# change des facteurs en char
+d$FI <- as.character(d$FI)
+d$FI_EJ <- as.character(d$FI_EJ)
+
+als <- d[substr(d$FI, 1, 2) %in% c("67","68"),]
+
+# merging pour avoir le nom de l'hopital
+alsh <- merge(als, hop, by.x = "FI", by.y = "FINESSG", all.x = T)
+# il faut supprimer 2 lignes dupliquées car HTP et PEDHTP ont le même FINESSG
+alsh <- alsh[-c(11,12),]
+a <- alsh[, c("FI", "HOPITAL", "PASSU")]
+a
+sum(a$PASSU)
+```
+Le registre SAE 2013 ne connait pas les cliniques Diaconat-Strasbourg et Diaconat-Roosvelt comme SU.
+
+RPU: nombre de pasages par établissement __PASSU__
+```{r passu, echo=FALSE}
+passu <- sum(als$PASSU)
+
+```
+- nombre de passages aux urgences en `r anc`: `r passu`.
